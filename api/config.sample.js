@@ -27,8 +27,8 @@ var countlyConfig = {
         ],
 		replicaName: "rs0",
         db: "countly",
-		username: test,
-		password: test,
+		username: "test",
+		password: "test",
         max_pool_size: 1000,
         dbOptions:{
             //db options
