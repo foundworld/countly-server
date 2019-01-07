@@ -95,7 +95,7 @@ cp -n $DIR/../api/config.sample.js $DIR/../api/config.js
 cp -n $DIR/../frontend/express/config.sample.js $DIR/../frontend/express/config.js
 
 #create mail configuration file from sample
-cp -n $DIR/../extend/mail.sample.js $DIR/../extend/mail.js
+cp -n $DIR/../extend/mail.example.js $DIR/../extend/mail.js
 
 if [ ! -f $DIR/../plugins/plugins.json ]; then
 	cp $DIR/../plugins/plugins.default.json $DIR/../plugins/plugins.json
