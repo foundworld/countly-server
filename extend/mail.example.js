@@ -11,7 +11,8 @@ module.exports = function(mail) {
     //define this if you need to send email from some third party service
     mail.smtpTransport = nodemailer.createTransport(smtpTransport({
         host: "smtp",
-        secureConnection: false,
+        secure: false,
+        ignoreTLS: true,
         port: 25
     }));
 
