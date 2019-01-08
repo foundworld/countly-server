@@ -56,7 +56,7 @@ var countlyConfig = {
     api: {
         port: 3001,
         host: "localhost",
-	
+	domain: "https://analytics.yinxiang.com",
         max_sockets: 1024,
         timeout: 120000
         /* GCM proxy server for push plugin
