@@ -110,5 +110,6 @@ var countlyConfig = {
 
 // Set your host IP or domain to be used in the emails sent
 countlyConfig.host = "analytics.yinxiang.com";
+countlyConfig.domain = "https://analytics.yinxiang.com";
 
 module.exports = require('./configextender')('API', countlyConfig, process.env);
