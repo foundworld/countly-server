@@ -4,7 +4,7 @@ var nodemailer = require('nodemailer');
 var smtpTransport = require('nodemailer-smtp-transport');
 
 //rename company
-var company = "印象笔记";
+var company = "Yinxiang Analytics Platform";
 var email = "ops+analytics@yinxiang.com";
 
 module.exports = function(mail) {
