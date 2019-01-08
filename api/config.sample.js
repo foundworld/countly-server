@@ -56,6 +56,7 @@ var countlyConfig = {
     api: {
         port: 3001,
         host: "localhost",
+	
         max_sockets: 1024,
         timeout: 120000
         /* GCM proxy server for push plugin
