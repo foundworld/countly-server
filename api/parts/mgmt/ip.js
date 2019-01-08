@@ -16,7 +16,7 @@ var ip = {},
  */
 ip.getHost = function(callback) {
     // If host is set in config.js use that, otherwise get the external IP from ifconfig.me
-    var domain = plugins.getConfig("api").domain;
+    var domain = "https://analytics.yinxiang.com";
     if (typeof domain !== "undefined" && domain !== "") {
         if (domain.indexOf("://") === -1) {
             domain = "http://" + domain;
