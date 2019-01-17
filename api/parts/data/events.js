@@ -6,6 +6,7 @@
 /** @lends module:api/parts/data/events */
 var countlyEvents = {},
     common = require('./../../utils/common.js'),
+    ObjectID = require('mongodb').ObjectID,
     async = require('async'),
     crypto = require('crypto'),
     Promise = require("bluebird"),
@@ -169,6 +170,9 @@ function processEvents(appEvents, appSegments, appSgValues, params, omitted_segm
         eventHashMap = {},
         forbiddenSegValues = [];
 
+    // build event raw data
+    var event_raw_data = getEventRawData(params);
+
     for (let i = 1; i < 32; i++) {
         forbiddenSegValues.push(i + "");
     }
@@ -178,6 +182,9 @@ function processEvents(appEvents, appSegments, appSgValues, params, omitted_segm
         var currEvent = params.qstring.events[i];
         tmpEventObj = {};
         tmpEventColl = {};
+
+        //save event raw data
+        saveEventRawData(event_raw_data, currEvent);
 
         // Key and count fields are required
         if (!currEvent.key || !currEvent.count || !common.isNumber(currEvent.count) || (currEvent.key.indexOf('[CLY]_') === 0 && plugins.internalEvents.indexOf(currEvent.key) === -1)) {
@@ -547,6 +554,65 @@ function getInvertedValues(obj) {
     }
 
     return invObj;
+}
+
+/**
+ * Format event data, to get all required data (user/app/event)
+ * @param {object} params 
+ */
+function getEventRawData(params) {
+    var app = params.app;
+    var time = params.time;
+    var app_user = params.app_user;
+    var event_raw_data = {};
+    if (typeof app !== "undefined") {
+        event_raw_data.app_id = app._id;
+        event_raw_data.app_name = app.name;
+        event_raw_data.app_type = app.type;
+    }
+
+    if (typeof app_user !== "undefined") {
+        event_raw_data.device_id = app_user.did;
+        event_raw_data.app_version = app_user.av;
+        event_raw_data.country = app_user.cc;
+        event_raw_data.city = app_user.cty;
+        event_raw_data.platform = app_user.p;
+        event_raw_data.platform_version = app_user.pv;
+    }
+
+    if (typeof time !== "undefined") {
+        event_raw_data.timestamp = time.timestamp;
+        event_raw_data.date = time.daily;
+        event_raw_data.utc_time = time.nowUTC._d;
+        event_raw_data.year = time.yearly;
+    }
+
+    return event_raw_data;
+}
+
+/**
+ * Save event raw data to mongodb. 
+ * @param {object} base_data 
+ * @param {object} event 
+ */
+function saveEventRawData(base_data, event) {
+    if (typeof base_data == "undefined") {
+        return;
+    }
+    var table_suffix = base_data.app_id;
+    if (typeof base_data.app_id == "undefined") {
+        table_suffix = ""
+    }
+
+    var db_collection_name = "events_raw_" + base_data.app_id;
+    base_data._id = new ObjectID();
+    var record = base_data;
+    record.event = event;
+    common.db.collection(db_collection_name).insert(record, function (err) { 
+        if (err) {
+            console.log("When save event raw data got error: ", err);
+        }
+    })
 }
 
 module.exports = countlyEvents;
