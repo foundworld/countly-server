@@ -564,10 +564,12 @@ function getEventRawData(params) {
     var app = params.app;
     var time = params.time;
     var app_user = params.app_user;
-    var event_raw_data = {};
+    var event_raw_data = {
+        app_id: params.app_id,
+        app_name: params.app_name
+    };
+
     if (typeof app !== "undefined") {
-        event_raw_data.app_id = app._id;
-        event_raw_data.app_name = app.name;
         event_raw_data.app_type = app.type;
     }
 
@@ -601,10 +603,10 @@ function saveEventRawData(base_data, event) {
     }
     var table_suffix = base_data.app_id;
     if (typeof base_data.app_id == "undefined") {
-        table_suffix = ""
+        table_suffix = "no_app_id"
     }
 
-    var db_collection_name = "events_raw_" + base_data.app_id;
+    var db_collection_name = "events_raw_" + table_suffix;
     base_data._id = new ObjectID();
     var record = base_data;
     record.event = event;
