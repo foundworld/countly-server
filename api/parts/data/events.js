@@ -605,11 +605,21 @@ function saveEventRawData(base_data, event) {
     if (typeof base_data.app_id == "undefined") {
         table_suffix = "no_app_id"
     }
+    var currEvent = event;
+    for (let segKey in currEvent.segmentation) {
+        var tmpSegKey = "";
+        // Mongodb field names can't start with $ or contain '.', use ':' instead.
+        if (segKey.indexOf('.') !== -1 || segKey.substr(0, 1) === '$') {
+            tmpSegKey = segKey.replace(/^\$|\./g, ":");
+            currEvent.segmentation[tmpSegKey] = currEvent.segmentation[segKey];
+            delete currEvent.segmentation[segKey];
+        }
+    }
 
     var db_collection_name = "events_raw_" + table_suffix;
     base_data._id = new ObjectID();
     var record = base_data;
-    record.event = event;
+    record.event = currEvent;
     common.db.collection(db_collection_name).insert(record, function (err) { 
         if (err) {
             console.log("When save event raw data got error: ", err);
