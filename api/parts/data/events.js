@@ -10,7 +10,8 @@ var countlyEvents = {},
     async = require('async'),
     crypto = require('crypto'),
     Promise = require("bluebird"),
-    plugins = require('../../../plugins/pluginManager.js');
+    plugins = require('../../../plugins/pluginManager.js'),
+    redis = require('./../../utils/redis.js');
 
 /**
 * Process JSON decoded events data from request
@@ -624,7 +625,74 @@ function saveEventRawData(base_data, event) {
         if (err) {
             console.log("When save event raw data got error: ", err);
         }
-    })
+    });
+    // filter and pub events to redis
+    try {
+        filterAndPublishEvent(redis, record);
+    }
+    catch (error) {
+        console.log("publish event to redis got error. ", error.message);
+    }
+}
+
+/**
+ * Filter events based on configuration('config.js') and
+ *  publish event to Redis.
+ * @param {redis obj} redis 
+ * @param {event obj} event_obj 
+ */
+function filterAndPublishEvent(redis, event_obj) {
+    // get Redis Topic that publish events to
+    var redis_pub_topic = config.yx_event_publish.redis_pub_topic;
+    if (undefined == redis || undefined == event_obj) {
+        return;
+    }
+    var app_id_list = []; // filtered app_id list
+    var app_keys = {};
+    // get app_id and filter_keys for each application
+    config.yx_event_publish.apps.forEach(element => {
+        app_id_list.push(element.app_id);
+        app_keys[element.app_id] = element.filter_keys;
+    });
+    var app_id = event_obj.app_id; // get app_id from event
+    if (undefined == app_id) {
+        return;
+    };
+    // check if app_id in the list
+    if (app_id_list.includes(app_id)) {
+        // check if the key and value matches the filter
+        var key_filters = app_keys[app_id];
+        if (undefined == key_filters) {
+            return;
+        };
+        // loop check filter_keys array ('OR' relation)
+        key_filters.forEach(ele => {
+            var is_matched = true;
+            // loop key/values pair array
+            for (let index = 0; index < ele.length; index++) {
+                const e = ele[index];
+                var key_items = e.key.split('.');
+                var key_values = e.values;
+                var find_key = event_obj;
+                // step into the innermost key and get its value, assign the value to find_key
+                key_items.forEach(item => {
+                    if (undefined != find_key[item]) {
+                        find_key = find_key[item];
+                    }
+                });
+                // if 'values' array didn't include the 'value' of the key, break loop
+                if (!key_values.includes(find_key)) {
+                    is_matched = false;
+                    break;
+                }
+            }
+            if (is_matched) {
+                // publish event to Redis with Json string
+                redis.pub(redis_pub_topic, JSON.stringify(event_obj));
+            }
+        });
+    }
+    return;
 }
 
 module.exports = countlyEvents;
