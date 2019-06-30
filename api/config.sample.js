@@ -44,6 +44,57 @@ var countlyConfig = {
 	mongodb: "mongodb://localhost:27017/countly",
     */
     /**
+     * Redis configuration. 
+     * @property {string} host - host of redis, ip or hostname
+     * @property {number} port - port of redis
+     * @property {string} instanceId - redis instance id in Tencent cloud
+     * @property {string} pwd - password of redis
+     */
+    redis: {
+        host: "localhost",
+        port: 32772,
+        instanceId: "",
+        pwd: "",
+    },
+
+    /**
+     * Define events of apps which will be published to Redis
+     * NOTE!!! you must provide 'redis' configuration before use this option.
+     * @property {string} redis_pub_topic - the topic of publish events in Redis.
+     * @property {array=} apps - the array of applications, include app_id and filter_keys.
+     *      @property {string} app_id - App Id that defined in Countly, which can be found from 'Management -> Applications'
+     *      @property {array=} filter_keys - Each application can have multiple filters, relationship is 'OR' among them,
+     *                                      which means each item of 'filter_keys' can get a kind of records.
+     *          @property {array=} object - key/value pair, the record must match all of the filters.
+     *                                      {string} key - the property path of Countly Event.
+     *                                      {array=} values - multiple values, matches one is ok (relation is 'OR').
+     * Tips: 
+     *  1. If 'apps' is empty(set to []), means filter nothing, no records will be published.
+     *  2. if 'filter_keys' is empty (set to []), means publish all events of the 'app_id'
+     */
+    yx_event_publish: {
+        redis_pub_topic: "paywall-event",
+        apps: [
+            {
+                app_id: "xxxxxxxxxxx", // MacOS 
+                filter_keys: [
+                    [
+                        {key: "event.segmentation.cd5", values: ["YX23232323","adfadfa"]}, // AND
+                        {key: "event.segmentation.cd6", values: ["Basic"]},
+                    ], // OR
+                ],
+            },
+            {
+                app_id: "xxxxxxxxxxxxx", // iOS
+                filter_keys: [
+                    [
+                        {key: "event.segmentation.action", values: ["success_yx_signup"]},
+                    ],
+                ],
+            },
+        ],
+    },
+    /**
     * Default API configuration
     * @type {object} 
     * @property {number} [port=3001] - api port number to use, default 3001
