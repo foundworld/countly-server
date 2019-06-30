@@ -42,13 +42,9 @@ redisClient.on("connect", function() {
 redis.pub = function(topic, content) {
     initRedis();
     redisClient.publish(topic, content, function(err, result) {
-        if (!err) {
-            common.log("Publishing to Redis got error: ", err);
+        if (err) {
+            console.log("Publishing to Redis got error: ", err);
             return false;
-        }
-        else {
-            common.log("result: ", result);
-            return true;
         }
     });
     return true;
