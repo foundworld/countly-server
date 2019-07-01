@@ -642,6 +642,7 @@ function saveEventRawData(base_data, event) {
  * @param {event obj} event_obj 
  */
 function filterAndPublishEvent(redis, event_obj) {
+    var config = common.config;
     // get Redis Topic that publish events to
     var redis_pub_topic = config.yx_event_publish.redis_pub_topic;
     if (undefined == redis || undefined == event_obj) {
@@ -659,7 +660,7 @@ function filterAndPublishEvent(redis, event_obj) {
         return;
     };
     // check if app_id in the list
-    if (app_id_list.includes(app_id)) {
+    if (app_id_list.includes(app_id.toString())) {
         // check if the key and value matches the filter
         var key_filters = app_keys[app_id];
         if (undefined == key_filters) {
