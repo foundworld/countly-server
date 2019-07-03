@@ -681,10 +681,25 @@ function filterAndPublishEvent(redis, event_obj) {
                         find_key = find_key[item];
                     }
                 });
-                // if 'values' array didn't include the 'value' of the key, break loop
-                if (!key_values.includes(find_key)) {
+                if (null == key_values || key_values.length == 0) {
+                    continue;
+                }
+                var is_matched_value = false;
+                for (let index = 0; index < key_values.length; index++) {
+                    const value = key_values[index];
+                    var re = new RegExp(value);
+                    try {
+                        if (re.test(find_key)) {
+                            is_matched_value = true;
+                            break; // only need got one matched. ('OR' relation)
+                        }
+                    } catch (error) {
+                        console.log("when check if value is matched got error: ", error);
+                    }  
+                }
+                if (!is_matched_value) {
                     is_matched = false;
-                    break;
+                    break; // need all condition are matched. ('AND' relation among all key/values pair)
                 }
             }
             if (is_matched) {
