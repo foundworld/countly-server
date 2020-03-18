@@ -20,25 +20,25 @@ var countlyConfig = {
     * @property {object=} serverOptions - provide raw driver server options, used for all, single, mongos and replica set servers
     */
     mongodb: {
-        replSetServers : [
-            'mongodb-0.mongodb.countly.svc.cluster.local:27017',
-            'mongodb-1.mongodb.countly.svc.cluster.local:27017',
-	    'mongodb-2.mongodb.countly.svc.cluster.local:27017'
-        ],
-		replicaName: "rs0",
+        host: "localhost",
         db: "countly",
-		username: "test",
-		password: "test",
         max_pool_size: 1000,
-        dbOptions:{
-            //db options
-            native_parser: true
-        },
-        serverOptions:{
-            //server options
-            ssl:false
-        }
     },
+	
+    /**
+     * Redis configuration.
+     * @property {string} host - host of redis, ip or hostname
+     * @property {number} port - port of redis
+     * @property {string} instanceId - redis instance id in Tencent cloud
+     * @property {string} pwd - password of redis
+     */
+    redis: {
+        host: "10.112.68.14",
+        port: 6379,
+        instanceId: "",
+        pwd: "stage!redis",
+    },
+	
     /*  or define as a url
 	//mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
 	mongodb: "mongodb://localhost:27017/countly",
